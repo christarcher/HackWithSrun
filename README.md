@@ -6,13 +6,15 @@
 
 然后通过隧道来访问这个内部网络
 
-## 匿名配置
+## 匿名化
 
 要确保完全匿名, 首先需要确保主机名不泄露. 那需要首先调整NetworkManager
 
 ### NetworkManager
 
 单独的配置, 即system-connections/*.conf:
+
+mac地址需要开启随机化, dhcp时不要发主机名出去
 
 ```ini
 [connection]
@@ -56,3 +58,24 @@ wifi.cloned-mac-address=random		# 每次连接都使用随机mac地址,那么每
 要避免往局域网内发mdns包, 不然泄露hostname, 可能溯源
 
 `systemctl is-active avahi-daemon`  在systemctl中查找, 如果有就关闭
+
+### NetBIOS
+
+注意不要安装smbd等在跳板机器上, 否则可能会NetBIOS
+
+### IPv6
+
+没有IPv6时默认配置是用mac地址作为后缀, 可能会泄露一些信息, 所以直接在sysctl和grub中关闭ipv6
+
+```ini
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+```
+
+```ini
+GRUB_CMDLINE_LINUX="ipv6.disable=1"
+```
+
+
+
