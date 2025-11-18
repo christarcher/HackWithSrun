@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NMID="starbucks-hacker"
+NMID="wifi"
 INTERFACE="wls192"
 MAX_RETRIES=5
 AUTH_CMD="python3 /root/wifi-auth.py"
@@ -77,12 +77,7 @@ refresh_connection() {
     return 0
 }
 
-main() {
-    if [ ! -f "$AUTH_CMD" ]; then
-        log_message "✗ Auth command not found: $AUTH_CMD"
-        exit 1
-    fi
-    
+main() {    
     log_message "=== WiFi Refresh Started ==="
     
     for i in $(seq 1 $MAX_RETRIES); do
