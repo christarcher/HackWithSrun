@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SSID="starbucks"
+NMID="starbucks-hacker"
 INTERFACE="wls192"
 MAX_RETRIES=3
 LOG_FILE="/root/wifi-refresh.log"
@@ -28,10 +28,10 @@ refresh_connection() {
     
     log_message "Attempt $attempt of $MAX_RETRIES"
     
-    nmcli connection down "$SSID" &>/dev/null
+    nmcli connection down "$NMID" &>/dev/null
     sleep 3
     
-    if nmcli connection up "$SSID" &>/dev/null; then
+    if nmcli connection up "$NMID" &>/dev/null; then
         if wait_for_connection; then
             NEW_MAC=$(ip link show "$INTERFACE" | grep link/ether | awk '{print $2}')
             NEW_IP=$(ip -4 addr show "$INTERFACE" | grep inet | awk '{print $2}')

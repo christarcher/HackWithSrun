@@ -18,7 +18,7 @@ mac地址需要开启随机化, dhcp时不要发主机名出去
 
 ```ini
 [connection]
-id=starbucks
+id=starbucks-hacker
 uuid=
 type=wifi
 interface-name=wlan0		# 需要更改网卡
@@ -31,10 +31,7 @@ band=a						# a是5G,b是2.4g,可以参考文档,我只考虑使用5G
 
 [ipv4]
 method=auto					# 下面的配置是为了确保不发送hostname
-dhcp-hostname=
 dhcp-send-hostname=no
-dhcp-fqdn=
-dhcp-client-id=
 
 [ipv6]
 method=disabled				# 不需要ipv6,一般公共网络也不会提供ipv6,ipv6还有可能泄露mac地址
