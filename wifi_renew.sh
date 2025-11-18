@@ -3,7 +3,7 @@
 NMID="starbucks-hacker"
 INTERFACE="wls192"
 MAX_RETRIES=5
-AUTH_SCRIPT="wifi-auth.py"
+AUTH_CMD="python3 /root/wifi-auth.py"
 LOG_FILE="/root/wifi-refresh.log"
 
 log_message() {
@@ -28,7 +28,7 @@ authenticate_network() {
     log_message "Authenticating..."
     
     local output
-    output=$(python3 "$AUTH_SCRIPT" 2>&1)
+    output=$("$AUTH_CMD" 2>&1)
     local exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
@@ -78,8 +78,8 @@ refresh_connection() {
 }
 
 main() {
-    if [ ! -f "$AUTH_SCRIPT" ]; then
-        log_message "✗ Auth script not found: $AUTH_SCRIPT"
+    if [ ! -f "$AUTH_CMD" ]; then
+        log_message "✗ Auth command not found: $AUTH_CMD"
         exit 1
     fi
     
