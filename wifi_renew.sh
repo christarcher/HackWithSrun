@@ -3,7 +3,7 @@
 NMID="wifi"
 INTERFACE="wls192"
 MAX_RETRIES=5
-AUTH_CMD="python3 /root/srun/srun_login.py"
+AUTH_CMD="python3 srun_login.py"
 LOG_FILE="/root/change_mac.log"
 LOCK_FILE="/var/run/wifi_refresh.lock"
 
@@ -13,6 +13,10 @@ log_message() {
 
 log_error() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1" | tee -a "$LOG_FILE" >&2
+}
+
+log_raw() {
+    echo "$1" | tee -a "$LOG_FILE"
 }
 
 cleanup() {
@@ -116,32 +120,49 @@ wait_for_connection() {
 }
 
 authenticate_network() {
-    local output
+    local temp_stdout=$(mktemp)
+    local temp_stderr=$(mktemp)
     local exit_code
     
+    log_message "Starting authentication..."
+    
     if command -v timeout &>/dev/null; then
-        output=$(timeout 60 $AUTH_CMD 2>&1)
+        timeout 60 $AUTH_CMD > "$temp_stdout" 2> "$temp_stderr"
         exit_code=$?
         
         if [ $exit_code -eq 124 ]; then
             log_error "Auth timeout"
+            rm -f "$temp_stdout" "$temp_stderr"
             return 1
         fi
     else
-        output=$($AUTH_CMD 2>&1)
+        $AUTH_CMD > "$temp_stdout" 2> "$temp_stderr"
         exit_code=$?
     fi
     
+    # Log stdout
+    if [ -s "$temp_stdout" ]; then
+        log_message "Auth stdout:"
+        while IFS= read -r line; do
+            log_raw "  | $line"
+        done < "$temp_stdout"
+    fi
+    
+    # Log stderr
+    if [ -s "$temp_stderr" ]; then
+        log_message "Auth stderr:"
+        while IFS= read -r line; do
+            log_raw "  | $line"
+        done < "$temp_stderr"
+    fi
+    
+    rm -f "$temp_stdout" "$temp_stderr"
+    
     if [ $exit_code -eq 0 ]; then
-        log_message "✓ Auth successful"
+        log_message "✓ Auth successful (exit: 0)"
         return 0
     else
         log_error "Auth failed (exit: $exit_code)"
-        if [ -n "$output" ]; then
-            echo "$output" | head -n3 | while IFS= read -r line; do
-                log_error "  $line"
-            done
-        fi
         return 1
     fi
 }
