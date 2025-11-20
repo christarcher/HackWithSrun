@@ -74,5 +74,18 @@ net.ipv6.conf.lo.disable_ipv6 = 1
 GRUB_CMDLINE_LINUX="ipv6.disable=1"
 ```
 
+## 定时任务
 
+设计为每天三点更换mac
+
+所以在watchdog中设计了2:50-3:10之间直接退出, 避免和更新mac的脚本冲突
+
+如果检测到断开互联网(自定义的测试靶标), 则也尝试更新mac地址和认证
+
+```bash
+# 更新mac(03:00)
+0 3 * * * /root/wifi_renew.sh
+# 监控网路(每5分钟)
+*/5 * * * * /root/watchdog.sh
+```
 
